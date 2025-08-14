@@ -50,39 +50,12 @@ check_arguments() {
     echo -e "Папка с аудио: \n\t$2"
 }
 
-first () {
-	SCRIPT_PATH=$(realpath "$0")
-	pathMount='/media/user'
-	userUUID=$(lsblk -no UUID $(df -P $SCRIPT_PATH | tail -1 | awk '{print $1}'))
-
-	var=$(find $pathMount -mindepth 1 -maxdepth 1 -type d -exec find {} -maxdepth 1 -type f -name "rootuser" \;)
-	if [ -f $var ]; then
-		var2=$(dirname "$var")
-		last_folder=$(basename "$var2")
-		rootDiskUUID=$last_folder
-	fi
-
-	PATH_FLASH=$(lsblk -o UUID,PATH_FLASH | grep "$UUID_DEVICE" | awk '{print $2}')
-}
-
-# Функция для генерации случайного алфавита
-alphabetical_random() {
-	local ALPHABET="abcdefghijklmnopqrstuvwxyz"
-	local INDEX=$((RANDOM % 26))  				# Вычисляем индекс
-	local RANDOM_LETTER="${ALPHABET:$INDEX:1}"  # Извлекаем букву по индексу
-	echo "$RANDOM_LETTER"  						# Выводим случайную букву
-}
-
 clear_flash () {
 	echo "очистка флешки"
 	if [ -d "$PATH_FLASH" ]; then
-	# 	echo "папка сущ."
 		cd "$PATH_FLASH"
-	# 	pwd
 		rm -rf *
-	# 	mkdir 2352352
 		if [ $? -eq 1 ]; then
-			#3 способа
 			echo "rm -rf * - ошибка"
 
 			rm -rf * && status="удалено" || status="не удалено"
@@ -94,36 +67,20 @@ clear_flash () {
 				echo "Команда не выполнена, файлы остались."
 			fi
 			
-			#read a
-			
 			exit
 		fi
 
-		# Запускаем функцию для генерации случайного имени папки
-		RANDOM_NAME=$(alphabetical_random)
-		RANDOM_NAME2=$(alphabetical_random)
-
-		# Создаём папку с полученным случайным именем из двух букв
-	# 	mkdir "${RANDOM_NAME}${RANDOM_NAME2}"
-		NAME="$(alphabetical_random)$(alphabetical_random)"
+		NAME="$(date +"%Y-%m-%d_%H-%M-%S")"
 		mkdir $NAME
-	# 	echo $(alphabetical_random)$(alphabetical_random)
 		echo "флешка подготовлена"
-		sleep 5
 	else
 		echo "что то не так. -d "$PATH_FLASH" не находит"
 	fi
 
 }
 
-
-
-# ----------------------------------------------------------------------------------------------------------
-
 copy_dir () {
 	# Удаляем символы
-	#CLEAR_FOLDER_NAME=$(echo "$folder_name" | tr -d '№(–)-' | tr -d ' ' )
-	#CLEAR_FOLDER_NAME=$(echo "$folder_name" | tr -d '№()-' | tr -d ' ' )
 	CLEAR_FOLDER_NAME=$(echo "$folder_name" | sed 's/ /_/g' | sed 's/[^a-zA-Zа-яА-Я0-9._-]//g')
 		#s/ /_/g — эта часть заменяет все пробелы на нижние подчеркивания.
 		#s/[^a-zA-Zа-яА-Я0-9._-]//g — эта часть удаляет все символы, которые не входят в указанный набор.
@@ -148,38 +105,12 @@ copy_dir () {
 	else
 		echo "Папка скопировалась. " "$PARENT_DIR/$new_name"
 	fi
-}
-
-fnc (){
-	# если новое имя отличается от старого то копируем с новым именем папку, 
-	if [ "$folder_name" != "$NEW_FOLDER_NAME" ]; then
-	#     echo 'отличается'
-		new_name="$NEW_FOLDER_NAME"
-
-		# если осталась папка пустая от предыдущего неудачного копирования на флеху. удаяем её
-		[[ -d "$PARENT_DIR/$new_name" ]] && rm -rf "$PARENT_DIR/$new_name"
-		clear
-		echo
-		echo "$PATH_AUDIOBOOK" "$PARENT_DIR/$new_name"
-
-	else
-		new_name="new_${CLEAR_FOLDER_NAME}"
-
-		# если осталась папка пустая от предыдущего неудачного копирования на флеху. удаяем её
-		[[ -d "$PARENT_DIR/$new_name" ]] && rm -rf "$PARENT_DIR/$new_name"
-
-		echo "копирование"
-
-	fi
-
-	##переименовать оригинальную папку
-	#mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
-
-
+	
+	#переименовать оригинальную папку
+	mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
 }
 
 func_mat2 () {
-	# -----------------------------------------------------------------------------------
 	# нужно зациклить поиск вложенных папок до тех по пока их не будет
 	# вытаскиваем из подпапки если она есть
 	SUB_DIR=$(find "$PARENT_DIR/$new_name" -mindepth 1 -maxdepth 1 -type d)
@@ -199,7 +130,6 @@ func_mat2 () {
 	# -----------------------------------------------------------------------------------
 
 	# mat2
-
 	if command -v mat2 >/dev/null 2>&1 ; then
 		echo
 	else	
@@ -208,14 +138,13 @@ func_mat2 () {
 
 	mat2 "$PARENT_DIR/${NEW_FOLDER_NAME}" && echo "ok mat2"
 
-	# удлаить после mat2
+	# после mat2 удлаить не содержащее "clean"
 	find . -type f ! -name '*clean*' -exec rm {} +
 }
 
 
 rename_mat (){
-
-	# это не зайдет во подпапку
+	# это не зайдет в подпапку
 	a=1; for f in *; do [ -f "$f" ] && mv "$f" "$(printf "%03d" $a).${f##*.}"; a=$((a + 1)); done
 
 	# это должно работать рекурсивно
@@ -242,8 +171,7 @@ copy_to_flash () {
 	echo "копирование на флешку"
 	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/"
 
-	# + && echo "cp ok"       не рб
-	ls "$PARENT_DIR/${NEW_FOLDER_NAME}/" | sort | xargs -I {} cp -v $PARENT_DIR/${NEW_FOLDER_NAME}/{} "$PATH_FLASH/" && echo "cp ok"
+	ls "$PARENT_DIR/${NEW_FOLDER_NAME}/" | sort | xargs -I {} cp -v $PARENT_DIR/${NEW_FOLDER_NAME}/{} "$PATH_FLASH/${NAME}" && echo "Скопированно на флешку"
 	#read 
 	
 	rm -rf "$PARENT_DIR/${NEW_FOLDER_NAME}/"
@@ -251,7 +179,6 @@ copy_to_flash () {
 	# Проверяем, удалилась ли папка
 	if [ ! -d "$PARENT_DIR/${NEW_FOLDER_NAME}" ]; then
 		echo "Папка удалена. " "$PARENT_DIR/${NEW_FOLDER_NAME}"
-#         exit 1
 	fi
 
 	echo
@@ -325,8 +252,14 @@ main () {
 	# Извлекаем имя папки из полного пути
 	folder_name=$(basename "$PATH_AUDIOBOOK")
 	read
-	echo
+
+	if [[ "$3" == "-f" || "$3" == "--full" ]]; then
+		full
+		exit 0
+	fi
+
 	selectfzf "$1" "$2"
+
 }
 
 main "$@"
