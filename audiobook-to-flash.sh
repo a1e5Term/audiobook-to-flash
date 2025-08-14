@@ -1,5 +1,22 @@
 #!/bin/bash
 
+#======================================================================
+
+<< 'MULTILINE-COMMENT'
+
+DOUBLECMD#TOOLBAR#XMLDATA<?xml version="1.0" encoding="UTF-8"?>
+<doublecmd>
+  <Program>
+    <Hint>audiobook-to-flash.sh LEFT_PANEL RIGHT_PANEL</Hint>
+    <Command>audiobook-to-flash.sh "%pl" "%pr"</Command>
+    <Params>%t1</Params>
+  </Program>
+</doublecmd>
+
+MULTILINE-COMMENT
+
+#======================================================================
+
 set -eo pipefail
 #e остановка скрипта если в строке ошибка
 #o pipefail остановка при обнаружении неизвестных команд
