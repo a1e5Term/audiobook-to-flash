@@ -68,7 +68,8 @@ check_arguments() {
 }
 
 clear_flash () {
-	echo "очистка флешки"
+	clear
+	echo "ОЧИСТКА ФЛЕШКИ"
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
 		rm -rf *
@@ -93,7 +94,7 @@ clear_flash () {
 	else
 		echo "что то не так. -d "$PATH_FLASH" не находит"
 	fi
-
+	sleep 3
 }
 
 copy_dir () {
@@ -111,7 +112,7 @@ copy_dir () {
 	# если осталась папка пустая от предыдущего неудачного копирования на флеху. удаяем её
 	[[ -d "${PARENT_DIR}/${NEW_FOLDER_NAME}" ]] && rm -rf "${PARENT_DIR}/${NEW_FOLDER_NAME}"
 	clear
-	echo "копирование"
+	echo -e "КОПИРОВАНИЕ\n"
 	echo "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 	cp -rv "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 
@@ -125,9 +126,13 @@ copy_dir () {
 	
 	#переименовать оригинальную папку
 	mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
+	
+	sleep 3
 }
 
 func_mat2 () {
+	clear
+	echo -e "Очистка от метаданных. mat2\n"
 	# нужно зациклить поиск вложенных папок до тех по пока их не будет
 	# вытаскиваем из подпапки если она есть
 	SUB_DIR=$(find "$PARENT_DIR/$new_name" -mindepth 1 -maxdepth 1 -type d)
@@ -183,9 +188,9 @@ rename_mat (){
 }
 
 copy_to_flash () {
+	clear
 	# "копирование на флешку"
-	echo " "
-	echo "копирование на флешку"
+	echo "КОПИРОВАНИЕ НА ФЛЕШКУ"
 	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/"
 
 	ls "$PARENT_DIR/${NEW_FOLDER_NAME}/" | sort | xargs -I {} cp -v $PARENT_DIR/${NEW_FOLDER_NAME}/{} "$PATH_FLASH/${NAME}" && echo "Скопированно на флешку"
@@ -199,8 +204,13 @@ copy_to_flash () {
 	fi
 
 	echo
-	echo "готово"
+	echo "ГОТОВО"
+}
 
+umnt (){
+	sleep 3
+	clear
+	umount "$1"
 }
 
 full () {
@@ -209,6 +219,7 @@ full () {
 	func_mat2
 	rename_mat
 	copy_to_flash
+	umnt "$1"
 }
 
 commands=("Full"  \
@@ -271,7 +282,7 @@ main () {
 	read
 
 	if [[ "$3" == "-f" || "$3" == "--full" ]]; then
-		full
+		full "$1"
 		exit 0
 	fi
 
