@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#папку new не удаляет
 #======================================================================
 
 << 'MULTILINE-COMMENT'
@@ -8,7 +8,7 @@ DOUBLECMD#TOOLBAR#XMLDATA<?xml version="1.0" encoding="UTF-8"?>
 <doublecmd>
   <Program>
     <Hint>audiobook-to-flash.sh LEFT_PANEL RIGHT_PANEL</Hint>
-    <Command>audiobook-to-flash.sh "%pl" "%pr"</Command>
+    <Command>audiobook-to-flash.sh %pl %pr</Command>
     <Params>%t1</Params>
   </Program>
 </doublecmd>
@@ -72,7 +72,11 @@ clear_flash () {
 	echo "ОЧИСТКА ФЛЕШКИ"
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
-		rm -rf *
+		rm -rf * > /dev/null
+		#rm -rf .* > /dev/null
+		#ОЧИСТКА ФЛЕШКИ
+#rm: refusing to remove '.' or '..' directory: skipping '.'
+#rm: refusing to remove '.' or '..' directory: skipping '..'
 		if [ $? -eq 1 ]; then
 			echo "rm -rf * - ошибка"
 
@@ -110,7 +114,7 @@ copy_dir () {
 	# echo "$PARENT_DIR"
 
 	# если осталась папка пустая от предыдущего неудачного копирования на флеху. удаяем её
-	[[ -d "${PARENT_DIR}/${NEW_FOLDER_NAME}" ]] && rm -rf "${PARENT_DIR}/${NEW_FOLDER_NAME}"
+	[[ -d "${PARENT_DIR}/${NEW_FOLDER_NAME}" ]] && rm -rf -r "${PARENT_DIR}/${NEW_FOLDER_NAME}"
 	clear
 	echo -e "КОПИРОВАНИЕ\n"
 	echo "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
@@ -128,6 +132,17 @@ copy_dir () {
 	mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
 	
 	sleep 3
+}
+
+check_mat2 (){
+	# mat2
+	if command -v mat2 >/dev/null 2>&1 ; then
+		MAT_COMMAND='mat2'
+	elif command -v mat >/dev/null 2>&1 ; then
+		MAT_COMMAND='mat'
+	else	
+		sudo apt install mat2 -y
+	fi
 }
 
 func_mat2 () {
@@ -151,58 +166,58 @@ func_mat2 () {
 	find . -type f ! -name "*.mp3" -exec rm {} +
 	# -----------------------------------------------------------------------------------
 
-	# mat2
-	if command -v mat2 >/dev/null 2>&1 ; then
-		echo
-	else	
-		sudo apt install mat2 -y
+	check_mat2
+
+	#read a
+
+	$MAT_COMMAND "$PARENT_DIR/${NEW_FOLDER_NAME}" && echo "ok $MAT_COMMAND"
+	#read a
+
+
+
+	if [ $MAT_COMMAND == mat2 ]; then
+		# после mat2 удлаить не содержащее "clean"
+		find . -type f ! -name '*clean*' -exec rm {} +
 	fi
 
-	mat2 "$PARENT_DIR/${NEW_FOLDER_NAME}" && echo "ok mat2"
-
-	# после mat2 удлаить не содержащее "clean"
-	find . -type f ! -name '*clean*' -exec rm {} +
 }
 
 
 rename_mat (){
 	# это не зайдет в подпапку
 	a=1; for f in *; do [ -f "$f" ] && mv "$f" "$(printf "%03d" $a).${f##*.}"; a=$((a + 1)); done
-
-	# это должно работать рекурсивно
-	# Начинаем с 1
-	# a=1
-
-	# Используем find для поиска всех файлов в текущем каталоге и подкаталогах
-	# find . -type f | while read -r f; do
-	#     # Получаем директорию файла
-	#     dir=$(dirname "$f")
-	#     # Переименовываем файл
-	#     mv "$f" "$dir/$(printf "%03d" $a).${f##*.}"
-	#     # Увеличиваем счетчик
-	#     a=$((a + 1))
-	# done
-
-
-	# добавить скрипт удаления
 }
 
+del_dir (){
+	if [ -d "$PARENT_DIR/${NEW_FOLDER_NAME}" ]; then
+		rm -rf -r "$PARENT_DIR/${NEW_FOLDER_NAME}/"
+
+		#read a
+		# Проверяем, удалилась ли папка
+		if [ ! -d "$PARENT_DIR/${NEW_FOLDER_NAME}" ]; then
+			echo "Папка удалена. " "$PARENT_DIR/${NEW_FOLDER_NAME}"
+		else
+			echo "Папка НЕ удалена. " "$PARENT_DIR/${NEW_FOLDER_NAME}"
+		fi
+		#read a
+	fi
+	
+}
+
+# копирование на флешку
 copy_to_flash () {
 	clear
-	# "копирование на флешку"
 	echo "КОПИРОВАНИЕ НА ФЛЕШКУ"
-	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/"
+	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/${NAME}"
 
-	ls "$PARENT_DIR/${NEW_FOLDER_NAME}/" | sort | xargs -I {} cp -v $PARENT_DIR/${NEW_FOLDER_NAME}/{} "$PATH_FLASH/${NAME}" && echo "Скопированно на флешку"
-	#read 
+	cp -v $PARENT_DIR/$NEW_FOLDER_NAME/* "$PATH_FLASH/${NAME}/"
 	
-	rm -rf "$PARENT_DIR/${NEW_FOLDER_NAME}/"
+	#if [ -d "$PARENT_DIR/${NEW_FOLDER_NAME}/" ]; then
+		#rsync -v "$PARENT_DIR/${NEW_FOLDER_NAME}/" "$PATH_FLASH/${NAME}/" > /dev/null
+	#else
+		#echo не найдена папка "$PARENT_DIR/${NEW_FOLDER_NAME}/"
+	#fi
 	
-	# Проверяем, удалилась ли папка
-	if [ ! -d "$PARENT_DIR/${NEW_FOLDER_NAME}" ]; then
-		echo "Папка удалена. " "$PARENT_DIR/${NEW_FOLDER_NAME}"
-	fi
-
 	echo
 	echo "ГОТОВО"
 }
@@ -210,6 +225,7 @@ copy_to_flash () {
 umnt (){
 	sleep 3
 	clear
+	echo umount "$1"
 	umount "$1"
 }
 
@@ -219,6 +235,7 @@ full () {
 	func_mat2
 	rename_mat
 	copy_to_flash
+	del_dir
 	umnt "$1"
 }
 
@@ -274,7 +291,6 @@ selectfzf () {
 main () {
 	. /etc/os-release
 
-	# Вызов функции с аргументами
 	check_arguments "$1" "$2"
 
 	# Извлекаем имя папки из полного пути
@@ -287,7 +303,6 @@ main () {
 	fi
 
 	selectfzf "$1" "$2"
-
 }
 
 main "$@"
