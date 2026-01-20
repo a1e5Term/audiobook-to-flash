@@ -210,7 +210,7 @@ copy_to_flash () {
 	echo "КОПИРОВАНИЕ НА ФЛЕШКУ"
 	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/${NAME}"
 
-	cp -v $PARENT_DIR/$NEW_FOLDER_NAME/* "$PATH_FLASH/${NAME}/"
+	cp -v "$PARENT_DIR/$NEW_FOLDER_NAME/"* "$PATH_FLASH/${NAME}/"
 	
 	#if [ -d "$PARENT_DIR/${NEW_FOLDER_NAME}/" ]; then
 		#rsync -v "$PARENT_DIR/${NEW_FOLDER_NAME}/" "$PATH_FLASH/${NAME}/" > /dev/null
@@ -225,8 +225,8 @@ copy_to_flash () {
 umnt (){
 	sleep 3
 	clear
-	echo umount "$1"
-	umount "$1"
+	echo umount "$PATH_FLASH"
+	umount "$PATH_FLASH"
 }
 
 full () {
