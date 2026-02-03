@@ -11,7 +11,7 @@ DOUBLECMD#TOOLBAR#XMLDATA<?xml version="1.0" encoding="UTF-8"?>
 <doublecmd>
   <Program>
     <Hint>audiobook-to-flash.sh LEFT_PANEL RIGHT_PANEL</Hint>
-    <Command>audiobook-to-flash.sh %pl %pr</Command>
+    <Command>audiobook-to-flash.sh %pl %pr -f</Command>
     <Params>%t1</Params>
   </Program>
 </doublecmd>
