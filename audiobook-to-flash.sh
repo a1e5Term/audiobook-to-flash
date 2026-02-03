@@ -24,6 +24,10 @@ set -eo pipefail
 #e остановка скрипта если в строке ошибка
 #o pipefail остановка при обнаружении неизвестных команд
 
+#Colours green, blue, yellow, lcyan, normal
+COLOURS=('\033[32m' '\033[01;34m' '\e[1;33m' '\033[1;36m' '\e[0m')
+NORMAL="${COLOURS[4]}"
+
 usage() {
 	echo "Usage: ./"$(basename $0) '"PATH_FLASH" "PATH_AUDIOBOOK"'
 	exit 0
@@ -254,7 +258,8 @@ case_func (){
 	#echo $CHOICE
 	#CHOICE=$(echo $CHOICE | awk '{print $2}')
 	#echo $CHOICE
-#read a
+	#read a
+	
 	case $CHOICE in
 		"clear_flash" | "2" )
 			clear_flash
@@ -315,15 +320,17 @@ main () {
 		exit 0
 	fi
 
-	if command -v fzf >/dev/null 2>&1 ; then
+	if ! command -v fzf >/dev/null 2>&1 ; then
 		selectfzf "$1" "$2"
     else
+		clear
         index=1
         for item in "${commands[@]}" ; do
-            printf "%b %-31b %b\n" "${COLOURS[2]}$((index))." "$item"
+            printf "%b %-31b %b\n" "${COLOURS[2]}$((index)).${NORMAL}" "$item" 
             index=$((index + 1))  # Увеличиваем счетчик
         done
-        read -p "$(echo -e ${COLOURS[0]}Enter number:${COLOURS[4]} )" CHOICE
+        echo
+        read -p "$(echo -e ${COLOURS[0]}Enter number: ${COLOURS[4]} )" CHOICE
         
         case_func
         
