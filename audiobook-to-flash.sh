@@ -249,10 +249,11 @@ commands=("Full"  \
 		  "rename_mat"  \
 		  "copy_to_flash")
 
-selectfzf () {
-	CMD=$(printf "%s\n" "${commands[@]}" | fzf --reverse --no-info --cycle)
+case_func (){
+	
+	echo $CHOICE
 
-	case $CMD in
+	case $CHOICE in
 		"clear_flash")
 			clear_flash
 			selectfzf
@@ -288,7 +289,12 @@ selectfzf () {
 			echo "Неизвестная команда"
 			;;
 	esac
+}
 
+selectfzf () {
+	CHOICE=$(printf "%s\n" "${commands[@]}" | nl | fzf --reverse --no-info --cycle)
+
+	case_func
 }
 
 main () {
@@ -305,7 +311,20 @@ main () {
 		exit 0
 	fi
 
-	selectfzf "$1" "$2"
+	if command -v fzf >/dev/null 2>&1 ; then
+		selectfzf "$1" "$2"
+    else
+        index=1
+        for item in "${commands[@]}" ; do
+            printf "%b %-31b %b\n" "${COLOURS[2]}$((index))." "$item"
+            index=$((index + 1))  # Увеличиваем счетчик
+        done
+        read -p "$(echo -e ${COLOURS[0]}Enter number:${COLOURS[4]} )" CHOICE
+        
+        case_func
+        
+    fi
+    
 }
 
 main "$@"
