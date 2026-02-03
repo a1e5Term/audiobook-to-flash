@@ -251,42 +251,46 @@ commands=("Full"  \
 
 case_func (){
 	
-	echo $CHOICE
-
+	#echo $CHOICE
+	#CHOICE=$(echo $CHOICE | awk '{print $2}')
+	#echo $CHOICE
+#read a
 	case $CHOICE in
-		"clear_flash")
+		"clear_flash" | "2" )
 			clear_flash
 			selectfzf
 			;;
 			
-		"copy_dir")
+		"copy_dir" | "3")
 			copy_dir "$2"
 			read
 			selectfzf
 			;;
 			
-		"func_mat2")
+		"func_mat2" | "4")
 			func_mat2
 			selectfzf
 			;;
 			
-		"rename_mat")
+		"rename_mat" | "5")
 			rename_mat
 			selectfzf
 			;;
-			
-		"copy_to_flash")
+
+		"copy_to_flash" | "6")
 			copy_to_flash
 			selectfzf
 			;;
-						
-		"Full")
+
+		"Full" | "1")
 			full
 			exit 0
 			;;
 			
 		*)
-			echo "Неизвестная команда"
+			#echo "Неизвестная команда"
+			CHOICE=$(echo $CHOICE | awk '{print $2}')
+			case_func
 			;;
 	esac
 }
