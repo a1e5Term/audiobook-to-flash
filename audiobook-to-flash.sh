@@ -246,12 +246,29 @@ full () {
 	umnt "$1"
 }
 
+NAME_ACTIONS=("Full"  \
+		  "clear_flash"  \
+		  "copy_dir"  \
+		  "func_mat2"  \
+		  "rename_mat"  \
+		  "copy_to_flash" \
+		  )
+
 commands=("Full"  \
 		  "clear_flash"  \
 		  "copy_dir"  \
 		  "func_mat2"  \
 		  "rename_mat"  \
-		  "copy_to_flash")
+		  "copy_to_flash" \
+		  )
+		  
+#commands=("Full"  \
+		  #"clear_flash"  \
+		  #"copy_dir"  \
+		  #"func_mat2"  \
+		  #"rename_mat"  \
+		  #"copy_to_flash" \
+		  #)
 
 case_func (){
 	
