@@ -41,7 +41,6 @@ fi
 check_arguments() {
     # Проверяем, передан ли первый аргумент
     if [ -z "$1" ]; then
-        echo "Пожалуйста, укажите путь к флешке."
         usage
         #Код возврата 0 обычно означает успешное завершение программы.
         exit 1
@@ -70,8 +69,8 @@ check_arguments() {
 		PATH_AUDIOBOOK="$2"
     fi
 
-    echo -e "Путь к флешке: \n\t$1"
-    echo -e "Папка с аудио: \n\t$2"
+    echo -e "${COLOURS[2]}Путь к флешке:${NORMAL} \n\t$1"
+    echo -e "${COLOURS[2]}Папка с аудио:${NORMAL} \n\t$2"
 }
 
 clear_flash () {
