@@ -1,4 +1,4 @@
-j#!/bin/bash
+#!/bin/bash
 #папку new не удаляет
 #======================================================================
 
@@ -75,7 +75,8 @@ check_arguments() {
 
 clear_flash () {
 	clear
-	echo "${COLOURS[0]}ОЧИСТКА ФЛЕШКИ${NORMAL}"
+	echo -e "${COLOURS[0]}ОЧИСТКА ФЛЕШКИ${NORMAL}"
+	
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
 		rm -rf * > /dev/null
