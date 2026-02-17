@@ -101,11 +101,13 @@ clear_flash () {
 
 		NAME="$(date +"%Y-%m-%d_%H-%M-%S")"
 		mkdir $NAME
-		echo "флешка подготовлена"
+		clear
+		echo -e "${COLOURS[0]}флешка подготовлена${NORMAL}"
+
 	else
 		echo "что то не так. -d "$PATH_FLASH" не находит"
 	fi
-	sleep 3
+	sleep 1
 }
 
 copy_dir () {
