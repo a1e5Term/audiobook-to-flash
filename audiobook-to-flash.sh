@@ -1,4 +1,4 @@
-#!/bin/bash
+j#!/bin/bash
 #папку new не удаляет
 #======================================================================
 
@@ -24,7 +24,7 @@ set -eo pipefail
 #e остановка скрипта если в строке ошибка
 #o pipefail остановка при обнаружении неизвестных команд
 
-#Colours green, blue, yellow, lcyan, normal
+#0 - green, 1 - blue, 2 - yellow, 3 lcyan, normal
 COLOURS=('\033[32m' '\033[01;34m' '\e[1;33m' '\033[1;36m' '\e[0m')
 NORMAL="${COLOURS[4]}"
 
@@ -69,13 +69,13 @@ check_arguments() {
 		PATH_AUDIOBOOK="$2"
     fi
 
-    echo -e "${COLOURS[2]}Путь к флешке:${NORMAL} \n\t$1"
-    echo -e "${COLOURS[2]}Папка с аудио:${NORMAL} \n\t$2"
+    echo -e "${COLOURS[0]}Путь к флешке:${NORMAL} \n\t$1"
+    echo -e "${COLOURS[0]}Папка с аудио:${NORMAL} \n\t$2"
 }
 
 clear_flash () {
 	clear
-	echo "ОЧИСТКА ФЛЕШКИ"
+	echo "${COLOURS[0]}ОЧИСТКА ФЛЕШКИ${NORMAL}"
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
 		rm -rf * > /dev/null
