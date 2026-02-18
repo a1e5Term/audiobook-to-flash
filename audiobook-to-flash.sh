@@ -56,7 +56,7 @@ check_arguments() {
 
     # Проверяем, передан ли второй аргумент
     if [ -z "$2" ]; then
-        echo "Укажите имя папки с аудио."
+        echo "Укажите путь к папке с аудио."
         usage
         exit 1
     fi
@@ -76,6 +76,7 @@ check_arguments() {
 clear_flash () {
 	clear
 	echo -e "${COLOURS[0]}ОЧИСТКА ФЛЕШКИ${NORMAL}"
+	sleep 1
 	
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
@@ -102,7 +103,7 @@ clear_flash () {
 		NAME="$(date +"%Y-%m-%d_%H-%M-%S")"
 		mkdir $NAME
 		clear
-		echo -e "${COLOURS[0]}флешка подготовлена${NORMAL}"
+		echo -e "${COLOURS[0]}ФЛЕШКА ПОДГОТОВЛЕНА${NORMAL}"
 
 	else
 		echo "что то не так. -d "$PATH_FLASH" не находит"
@@ -124,8 +125,11 @@ copy_dir () {
 
 	# если осталась папка пустая от предыдущего неудачного копирования на флеху. удаяем её
 	[[ -d "${PARENT_DIR}/${NEW_FOLDER_NAME}" ]] && rm -rf -r "${PARENT_DIR}/${NEW_FOLDER_NAME}"
+
 	clear
-	echo -e "КОПИРОВАНИЕ\n"
+
+    echo -e "${COLOURS[0]}КОПИРОВАНИЕ ${NORMAL}\n"
+
 	echo "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 	cp -rv "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 
