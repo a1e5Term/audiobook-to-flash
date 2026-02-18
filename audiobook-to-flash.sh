@@ -216,7 +216,8 @@ del_dir (){
 # копирование на флешку
 copy_to_flash () {
 	clear
-	echo "КОПИРОВАНИЕ НА ФЛЕШКУ"
+    echo -e "${COLOURS[0]}КОПИРОВАНИЕ НА ФЛЕШКУ${NORMAL} \n\t$1"
+
 	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/${NAME}"
 
 	cp -v "$PARENT_DIR/$NEW_FOLDER_NAME/"* "$PATH_FLASH/${NAME}/"
