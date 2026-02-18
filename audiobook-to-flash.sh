@@ -156,7 +156,12 @@ check_mat2 (){
 
 func_mat2 () {
 	clear
-	echo -e "Очистка от метаданных. mat2\n"
+	
+	check_mat2
+	
+	#echo -e ""
+    echo -e "\n${COLOURS[0]}ОЧИСТКА ОТ МЕТАДАННЫХ. ${MAT_COMMAND} ${NORMAL}\n"
+
 	# нужно зациклить поиск вложенных папок до тех по пока их не будет
 	# вытаскиваем из подпапки если она есть
 	SUB_DIR=$(find "$PARENT_DIR/$new_name" -mindepth 1 -maxdepth 1 -type d)
@@ -175,7 +180,6 @@ func_mat2 () {
 	find . -type f ! -name "*.mp3" -exec rm {} +
 	# -----------------------------------------------------------------------------------
 
-	check_mat2
 
 	#read a
 
@@ -216,7 +220,7 @@ del_dir (){
 # копирование на флешку
 copy_to_flash () {
 	clear
-    echo -e "${COLOURS[0]}КОПИРОВАНИЕ НА ФЛЕШКУ${NORMAL} \n\t$1"
+    echo -e "${COLOURS[0]}КОПИРОВАНИЕ НА ФЛЕШКУ${NORMAL}"
 
 	echo "$PARENT_DIR/${NEW_FOLDER_NAME}/*" "$PATH_FLASH/${NAME}"
 
