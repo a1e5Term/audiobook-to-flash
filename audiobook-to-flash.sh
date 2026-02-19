@@ -28,6 +28,8 @@ set -eo pipefail
 COLOURS=('\033[32m' '\033[01;34m' '\e[1;33m' '\033[1;36m' '\e[0m')
 NORMAL="${COLOURS[4]}"
 
+DELAY=2
+
 usage() {
 	echo "Usage: ./"$(basename $0) '"PATH_FLASH" "PATH_AUDIOBOOK"'
 	exit 0
@@ -76,7 +78,7 @@ check_arguments() {
 clear_flash () {
 	clear
 	echo -e "${COLOURS[0]}ОЧИСТКА ФЛЕШКИ${NORMAL}"
-	sleep 1
+	sleep $DELAY
 	
 	if [ -d "$PATH_FLASH" ]; then
 		cd "$PATH_FLASH"
@@ -108,7 +110,7 @@ clear_flash () {
 	else
 		echo "что то не так. -d "$PATH_FLASH" не находит"
 	fi
-	sleep 1
+	sleep $DELAY
 }
 
 copy_dir () {
@@ -141,13 +143,13 @@ copy_dir () {
 	else
 		clear
 		echo -e "${COLOURS[0]}Папка скопировалась. $PARENT_DIR/$new_name${NORMAL}\n"
-		sleep 1
+		sleep $DELAY
 	fi
 	
 	#переименовать оригинальную папку
 	mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
 	
-	sleep 1
+	sleep $DELAY
 }
 
 check_mat2 (){
@@ -244,7 +246,7 @@ copy_to_flash () {
 }
 
 umnt (){
-	sleep 3
+	sleep $DELAY
 	clear
 	echo umount "$PATH_FLASH"
 	umount "$PATH_FLASH"
