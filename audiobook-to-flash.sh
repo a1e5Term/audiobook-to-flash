@@ -133,18 +133,21 @@ copy_dir () {
 	echo "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 	cp -rv "$PATH_AUDIOBOOK" "$PARENT_DIR/$NEW_FOLDER_NAME"
 
+	
 	# Проверяем, скопировалась ли папка
 	if [ ! -d "$PARENT_DIR/$new_name" ]; then
-		echo "Папка не скопировалась. " "$PARENT_DIR/$new_name"
+		echo -e "${COLOURS[0]}Папка не скопировалась. " "$PARENT_DIR/$new_name${NORMAL}\n"
 		exit 1
 	else
-		echo "Папка скопировалась. " "$PARENT_DIR/$new_name"
+		clear
+		echo -e "${COLOURS[0]}Папка скопировалась. $PARENT_DIR/$new_name${NORMAL}\n"
+		sleep 1
 	fi
 	
 	#переименовать оригинальную папку
 	mv "$PATH_AUDIOBOOK" "$PARENT_DIR/_${folder_name}"
 	
-	sleep 3
+	sleep 1
 }
 
 check_mat2 (){
@@ -164,7 +167,7 @@ func_mat2 () {
 	check_mat2
 	
 	#echo -e ""
-    echo -e "\n${COLOURS[0]}ОЧИСТКА ОТ МЕТАДАННЫХ. ${MAT_COMMAND} ${NORMAL}\n"
+    echo -e "${COLOURS[0]}ОЧИСТКА ОТ МЕТАДАННЫХ. ${COLOURS[3]}${MAT_COMMAND} ${NORMAL}\n"
 
 	# нужно зациклить поиск вложенных папок до тех по пока их не будет
 	# вытаскиваем из подпапки если она есть
