@@ -28,7 +28,7 @@ set -eo pipefail
 COLOURS=('\033[32m' '\033[01;34m' '\e[1;33m' '\033[1;36m' '\e[0m')
 NORMAL="${COLOURS[4]}"
 
-DELAY=2
+DELAY="2"
 
 usage() {
 	echo "Usage: ./"$(basename $0) '"PATH_FLASH" "PATH_AUDIOBOOK"'
@@ -40,39 +40,89 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
 	exit 0
 fi
 
+define_path(){
+	    # Проверяем, существует ли папка с аудио
+    if [ ! -d "$2" ]; then
+        echo "Путь $2 не является папкой."
+        exit 1
+    else
+		#проверить есть ли аудиофайлы
+		PATH_AUDIOBOOK="$2"
+    fi
+
+}
+
+device_type(){
+	# Получаем тип устройства
+	lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}')
+	IS_REMOVABLE="$(lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}'))"
+}
+
+define_flash (){
+	#/media/debuser/FCB6-116C
+	#sleep 1
+	#echo "$1"
+    # Проверяем, существует ли путь к флешке
+    if [ ! -d "$1" ]; then
+        echo "Путь $1 не найден или не является папкой."
+        exit 1
+    else
+		#define_flash
+		
+		device_type "$1"
+
+		if [ "$IS_REMOVABLE" == " 1" ]; then
+			#echo "$1 является флешкой."
+			PATH_FLASH="$1"
+			
+			#define_path "$2"
+			
+			PATH_AUDIOBOOK="$2"
+			#read a
+			return
+		fi
+		
+		device_type "$2"
+
+		if [ "$IS_REMOVABLE" == " 1" ]; then
+			#echo "$1 является флешкой."
+			PATH_FLASH="$2"
+			
+			#define_path "$2"
+			
+			PATH_AUDIOBOOK="$1"
+			#read a
+			return
+		fi
+		
+    fi
+}
+
+
+
+
 check_arguments() {
     # Проверяем, передан ли первый аргумент
     if [ -z "$1" ]; then
+    #if [ -z "$1" ] && [ -z "$2" ]; then
         usage
         #Код возврата 0 обычно означает успешное завершение программы.
         exit 1
     fi
 
-    # Проверяем, существует ли путь к флешке
-    if [ ! -d "$1" ]; then
-        echo "Путь '$1' не найден или не является папкой."
-        exit 1
-    else
-		PATH_FLASH="$1"
-    fi
-
     # Проверяем, передан ли второй аргумент
     if [ -z "$2" ]; then
-        echo "Укажите путь к папке с аудио."
+        #echo "Укажите путь к папке с аудио."
         usage
         exit 1
+    #else
+		#define_path "$2"
     fi
 
-    # Проверяем, существует ли папка с аудио
-    if [ ! -d "$2" ]; then
-        echo "Папка '$2' не найдена."
-        exit 1
-    else
-		PATH_AUDIOBOOK="$2"
-    fi
-
-    echo -e "${COLOURS[0]}Путь к флешке:${NORMAL} \n\t$1"
-    echo -e "${COLOURS[0]}Папка с аудио:${NORMAL} \n\t$2"
+	define_flash "$1" "$2"
+		
+    echo -e "${COLOURS[0]}Путь к флешке:${NORMAL} \n\t$PATH_FLASH"
+    echo -e "${COLOURS[0]}Папка с аудио:${NORMAL} \n\t$PATH_AUDIOBOOK"
 }
 
 clear_flash () {
@@ -141,9 +191,9 @@ copy_dir () {
 		echo -e "${COLOURS[0]}Папка не скопировалась. " "$PARENT_DIR/$new_name${NORMAL}\n"
 		exit 1
 	else
-		clear
 		echo -e "${COLOURS[0]}Папка скопировалась. $PARENT_DIR/$new_name${NORMAL}\n"
 		sleep $DELAY
+		clear
 	fi
 	
 	#переименовать оригинальную папку
@@ -242,7 +292,10 @@ copy_to_flash () {
 	#fi
 	
 	echo
+	sleep $DELAY
+	clear
 	echo "ГОТОВО"
+	sleep $DELAY
 }
 
 umnt (){
