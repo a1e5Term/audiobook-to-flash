@@ -2,7 +2,7 @@
 
 #======================================================================
 
-#Путь к флеше/аудиокниге могут быть и слева и справа
+# Не имеет значения справа или слева путь к флеше/аудиокниге
 
 << 'MULTILINE-COMMENT'
 
@@ -27,7 +27,7 @@ set -eo pipefail
 COLOURS=('\033[32m' '\033[01;34m' '\e[1;33m' '\033[1;36m' '\e[0m')
 NORMAL="${COLOURS[4]}"
 
-DELAY="2"
+DELAY="1"
 
 usage() {
 	echo "Usage: ./"$(basename $0) '"PATH_FLASH" "PATH_AUDIOBOOK"'
@@ -39,21 +39,21 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
 	exit 0
 fi
 
-define_path(){
-	    # Проверяем, существует ли папка с аудио
-    if [ ! -d "$2" ]; then
-        echo "Путь $2 не является папкой."
-        exit 1
-    else
-		#проверить есть ли аудиофайлы
-		PATH_AUDIOBOOK="$2"
-    fi
+#define_path(){
+	    ## Проверяем, существует ли папка с аудио
+    #if [ ! -d "$2" ]; then
+        #echo "Путь $2 не является папкой."
+        #exit 1
+    #else
+		##проверить есть ли аудиофайлы
+		#PATH_AUDIOBOOK="$2"
+    #fi
 
-}
+#}
 
 device_type(){
 	# Получаем тип устройства
-	lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}')
+	lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}') > /dev/null 2>&1
 	IS_REMOVABLE="$(lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}'))"
 }
 
@@ -62,44 +62,49 @@ define_flash (){
 	#sleep 1
 	#echo "$1"
     # Проверяем, существует ли путь к флешке
-    if [ ! -d "$1" ]; then
-        echo "Путь $1 не найден или не является папкой."
-        exit 1
-    else
-		#define_flash
-		
-		device_type "$1"
 
-		if [ "$IS_REMOVABLE" == " 1" ]; then
-			#echo "$1 является флешкой."
-			PATH_FLASH="$1"
-			
-			#define_path "$2"
-			
-			PATH_AUDIOBOOK="$2"
-			#read a
-			return
-		fi
-		
-		device_type "$2"
+	#define_flash
+	
+	device_type "$1"
 
-		if [ "$IS_REMOVABLE" == " 1" ]; then
-			#echo "$1 является флешкой."
-			PATH_FLASH="$2"
-			
-			#define_path "$2"
-			
-			PATH_AUDIOBOOK="$1"
-			#read a
-			return
-		fi
+	if [ "$IS_REMOVABLE" == " 1" ]; then
+		#echo "$1 является флешкой."
+		PATH_FLASH="$1"
 		
-    fi
+		#define_path "$2"
+		
+		PATH_AUDIOBOOK="$2"
+		#read a
+		return
+	fi
+	
+	device_type "$2"
+
+	if [ "$IS_REMOVABLE" == " 1" ]; then
+		#echo "$1 является флешкой."
+		PATH_FLASH="$2"
+		
+		#define_path "$2"
+		
+		PATH_AUDIOBOOK="$1"
+		#read a
+		return
+	fi
+		
 }
 
-
-
-
+check_dir() {
+		if [ ! -d "$1" ]; then
+		echo "Путь $1 не найден или не является папкой."
+		exit 1
+	fi
+		
+	if [ ! -d "$2" ]; then
+		echo "Путь $2 не найден или не является папкой."
+		exit 1
+	fi
+}
+	
 check_arguments() {
     # Проверяем, передан ли первый аргумент
 	if [ -z "$1" ] || [ -z "$2" ]; then
@@ -108,6 +113,8 @@ check_arguments() {
         exit 1
     fi
 
+	check_dir "$1" "$2"
+		
 	define_flash "$1" "$2"
 		
     echo -e "${COLOURS[0]}Путь к флешке:${NORMAL} \n\t$PATH_FLASH"
@@ -283,7 +290,7 @@ copy_to_flash () {
 	echo
 	sleep $DELAY
 	clear
-	echo "ГОТОВО"
+    echo -e "${COLOURS[0]}ГОТОВО${NORMAL}"
 	sleep $DELAY
 }
 
@@ -384,16 +391,50 @@ selectfzf () {
 main () {
 	. /etc/os-release
 
-	check_arguments "$1" "$2"
+	#check_arguments "$1" "$2"
+	#check_arguments() {
+
+	# Проверяем, передан ли первый аргумент
+	if [ -z "$1" ] || [ -z "$2" ]; then
+		usage
+		#Код возврата 0 обычно означает успешное завершение программы.
+		exit 1
+	fi
+
+	check_dir "$1" "$2"
+
+	# Перебираем все аргументы
+	for arg in "$@"; do
+		if [[ "$arg" == "-t" ]]; then
+			PATH_FLASH="$1"
+			PATH_AUDIOBOOK="$2"
+			t_option="1"
+		fi
+	done
+		
+	if [[ ! "$t_option" == "1" ]]; then
+	#if ! $t_option; then
+		#echo "Опция -t не найдена."
+		#read
+		define_flash "$1" "$2"
+	fi
+		
+	echo -e "${COLOURS[0]}Путь к флешке:${NORMAL} \n\t$PATH_FLASH"
+	echo -e "${COLOURS[0]}Папка с аудио:${NORMAL} \n\t$PATH_AUDIOBOOK"
+
+	read
 
 	# Извлекаем имя папки из полного пути
 	folder_name=$(basename "$PATH_AUDIOBOOK")
-	read
 
-	if [[ "$3" == "-f" || "$3" == "--full" ]]; then
-		full "$1"
-		exit 0
-	fi
+
+	# Перебираем все аргументы
+	for arg in "$@"; do
+		if [[ "$arg" == "-f" || "$arg" == "--full" ]]; then
+			full "$1"
+			exit 0
+		fi
+	done
 
 	if ! command -v fzf >/dev/null 2>&1 ; then
 		selectfzf "$1" "$2"
