@@ -187,6 +187,7 @@ copy_dir () {
 		echo -e "${COLOURS[0]}Папка не скопировалась. " "$PARENT_DIR/$new_name${NORMAL}\n"
 		exit 1
 	else
+		clear
 		echo -e "${COLOURS[0]}Папка скопировалась. $PARENT_DIR/$new_name${NORMAL}\n"
 		sleep $DELAY
 		clear
