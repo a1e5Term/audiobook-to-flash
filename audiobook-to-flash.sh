@@ -53,8 +53,16 @@ fi
 
 device_type(){
 	# Получаем тип устройства
-	lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}') > /dev/null 2>&1
+	#lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}') > /dev/null 2>&1
+	#findmnt $1
+	#findmnt /media/debuser/FCB6-116C | awk 'NR==2 {print $2}'
+	#findmnt $1 | awk 'NR==2 {print $2}'
+	
+	#lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}')
+	#lsblk -no RM $(findmnt /media/debuser/FCB6-116C | awk 'NR==2 {print $2}')
+	
 	IS_REMOVABLE="$(lsblk -no RM $(findmnt $1 | awk 'NR==2 {print $2}'))"
+	#echo $IS_REMOVABLE
 }
 
 define_flash (){
@@ -65,9 +73,11 @@ define_flash (){
 
 	#define_flash
 	
+	#echo device_type "$1"
 	device_type "$1"
+	#echo $IS_REMOVABLE
 
-	if [ "$IS_REMOVABLE" == " 1" ]; then
+	if [[ "$IS_REMOVABLE" == " 1" || "$IS_REMOVABLE" == "1" ]]; then
 		#echo "$1 является флешкой."
 		PATH_FLASH="$1"
 		
@@ -80,7 +90,7 @@ define_flash (){
 	
 	device_type "$2"
 
-	if [ "$IS_REMOVABLE" == " 1" ]; then
+	if [[ "$IS_REMOVABLE" == " 1" || "$IS_REMOVABLE" == "1" ]]; then
 		#echo "$1 является флешкой."
 		PATH_FLASH="$2"
 		
@@ -205,7 +215,8 @@ check_mat2 (){
 		MAT_COMMAND='mat2'
 	elif command -v mat >/dev/null 2>&1 ; then
 		MAT_COMMAND='mat'
-	else	
+	else
+		echo "Установка mat2"
 		sudo apt install mat2 -y
 	fi
 }
